@@ -1,0 +1,115 @@
+{
+	"info": {
+		"_postman_id": "c231973e-b892-4c66-9c34-3aec5f5df4a1",
+		"name": "Bootcamp32ProyectoFinal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13778853"
+	},
+	"item": [
+		{
+			"name": "Lista de Tipo de Cambio",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"laptop ASUS\",\r\n    \"price\": 3000.0,\r\n    \"date\": \"2022-10-30T05:00:00.000+00:00\",\r\n    \"address\": \"Lima, Perú\",\r\n    \"location\": \"Lima\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9005/tipocambio/",
+					"host": [
+						"localhost"
+					],
+					"port": "9005",
+					"path": [
+						"tipocambio",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Establecer Tipo de Cambio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"originalCurrency\": \"bootcoin\",\r\n    \"destinationCurrency\": \"soles\",\r\n    \"buy\": 3.1,\r\n    \"sell\": 3.5,\r\n    \"date\": \"2022-09-13\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9005/tipocambio/",
+					"host": [
+						"localhost"
+					],
+					"port": "9005",
+					"path": [
+						"tipocambio",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tipo de cambio de hoy dia",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9005/tipocambio/hoy",
+					"host": [
+						"localhost"
+					],
+					"port": "9005",
+					"path": [
+						"tipocambio",
+						"hoy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "solicitar compra",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"numdocument\": \"234567879\",\r\n    \"cell\": \"936268100\",\r\n    \"email\": \"correo02@gmail.com\",\r\n    \"accountid\": \"\",\r\n    \"amountavailable\": 30.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9005/comprar",
+					"host": [
+						"localhost"
+					],
+					"port": "9005",
+					"path": [
+						"comprar"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
