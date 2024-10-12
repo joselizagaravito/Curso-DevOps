@@ -122,7 +122,6 @@ public class AccountController {
 		return accounts;
 	}
 	
-
 	@PutMapping("/{id}")
 	public Account edit(@RequestBody Account savings, @PathVariable Long id) {
 		Account p = accountService.findById(id).get();
