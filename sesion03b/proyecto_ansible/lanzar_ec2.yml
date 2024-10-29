@@ -1,0 +1,40 @@
+---
+- name: Desplegar una instancia EC2 en AWS
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    instance_type: t2.micro
+    key_name: my_key_aws  # Reemplaza con el nombre de tu par de claves
+    region: us-east-1
+    ami: ami-06b21ccaeff8cd686  # Reemplaza con el AMI ID obtenido
+    security_group: mi_grupo_seguridad
+  tasks:
+    - name: Crear un grupo de seguridad en AWS
+      amazon.aws.ec2_security_group:
+        name: "{{ security_group }}"
+        description: "Grupo de seguridad para mi instancia de prueba"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: -1
+            cidr_ip: 0.0.0.0/0
+      register: security_group_result
+
+    - name: Lanzar una instancia EC2
+      amazon.aws.ec2_instance:
+        key_name: "{{ key_name }}"
+        instance_type: "{{ instance_type }}"
+        region: "{{ region }}"
+        image_id: "{{ ami }}"
+        wait: yes
+        security_group: "{{ security_group }}"
+      register: ec2
+
+    - name: Mostrar información de la instancia EC2
+      debug:
+        msg: "La instancia EC2 ha sido creada con la ID {{ ec2.instance_ids[0] }} y se encuentra en la región {{ region }}"
