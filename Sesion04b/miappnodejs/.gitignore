@@ -1,0 +1,32 @@
+# Dependencias de Node.js
+node_modules/
+package-lock.json
+
+# Archivos de compilación (si usas herramientas como TypeScript o Webpack)
+dist/
+build/
+
+# Configuraciones de entorno
+.env
+
+# Archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de despliegue
+docker-compose.*
+*.dockerignore
+.Dockerfile

@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app-01:
+    image: app-01:latest
+    build:
+      context: ./Micro1App
+    ports:
+      - "8090:8090"
+    networks:
+      - red-swarm
+    depends_on:
+      - app-02
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  app-02:
+    image: app-02:latest
+    build:
+      context: ./Micro2App
+    ports:
+      - "8091:8091"
+    networks:
+      - red-swarm
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+networks:
+  red-swarm:
+    external: true

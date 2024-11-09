@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appnodejs-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appnodejs
+  template:
+    metadata:
+      labels:
+        app: appnodejs
+    spec:
+      containers:
+      - name: appnodejs
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: NAME
+          value: "Jose Liza"
+        - name: LANGUAGE
+          value: "NodeJS"

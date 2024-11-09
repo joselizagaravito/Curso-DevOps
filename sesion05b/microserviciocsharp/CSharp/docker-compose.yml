@@ -1,0 +1,30 @@
+services:
+  micro1:
+    image: micro1app:latest
+    build:
+      context: .
+      dockerfile: Micro1App/Dockerfile
+    ports:
+      - "8090:8090"
+    depends_on:
+      - micro2
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8090
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  micro2:
+    image: micro2app:latest
+    build:
+      context: .
+      dockerfile: Micro2App/Dockerfile
+    ports:
+      - "8091:8091"
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8091
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure

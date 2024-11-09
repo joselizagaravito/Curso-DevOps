@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app-01:
+    build:
+      context: ./Micro1App
+    ports:
+      - "8090:8090"
+    networks:
+      - mi_red
+    depends_on:
+      - app-02
+
+  app-02:
+    build:
+      context: ./Micro2App
+    ports:
+      - "8091:8091"
+    networks:
+      - mi_red
+
+networks:
+  mi_red:
+    driver: bridge
