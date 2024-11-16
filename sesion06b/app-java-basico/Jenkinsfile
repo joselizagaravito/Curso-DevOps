@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    environment {
+        // Credenciales y variables de entorno
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub-credentials')
+        AZURE_CREDENTIALS = credentials('azure-service-principal')
+
+        DOCKERHUB_REPO = 'joselizagaravito/app-java-basico'
+        IMAGE_TAG = 'latest'
+
+        // Variables para Azure
+        AZURE_SUBSCRIPTION_ID = "${AZURE_CREDENTIALS_SUBSCRIPTION_ID}"
+        AZURE_CLIENT_ID = "${AZURE_CREDENTIALS_USR}"
+        AZURE_CLIENT_SECRET = "${AZURE_CREDENTIALS_PSW}"
+        AZURE_TENANT_ID = "${AZURE_CREDENTIALS_TENANT_ID}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clona el repositorio desde GitHub
+                git credentialsId: 'git-credenciales', url: 'hhttps://github.com/joselizagaravito/app-java-basico.git'
+            }
+        }
+
+        stage('Construir Aplicación') {
+            steps {
+                // Construye la aplicación (ejemplo usando Maven)
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Construir Imagen Docker') {
+            steps {
+                // Construye la imagen Docker
+                sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Enviar Imagen a Docker Hub') {
+            steps {
+                // Inicia sesión en Docker Hub
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                // Envía la imagen a Docker Hub
+                sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Autenticación en Azure') {
+            steps {
+                // Autentica en Azure usando el servicio principal
+                sh """
+                az login --service-principal \\
+                    --username ${AZURE_CLIENT_ID} \\
+                    --password ${AZURE_CLIENT_SECRET} \\
+                    --tenant ${AZURE_TENANT_ID}
+                az account set --subscription ${AZURE_SUBSCRIPTION_ID}
+                """
+            }
+        }
+
+        stage('Desplegar en Azure') {
+            steps {
+                // Realiza las operaciones necesarias en Azure (por ejemplo, desplegar en AKS)
+                // Aquí podrías ejecutar comandos de Terraform o Azure CLI
+                // Este es un ejemplo genérico
+                sh 'echo "Desplegando aplicación en Azure..."'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Limpia las credenciales de Docker
+            sh 'docker logout'
+        }
+    }
+}
