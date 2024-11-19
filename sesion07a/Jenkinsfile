@@ -1,0 +1,43 @@
+Proporciona un ejemplo práctico y funcional de un archivo Jenkinsfile que realice las siguientes acciones:
+
+Lea el código fuente desde un repositorio público en GitHub.
+Compile el código fuente (puede ser una aplicación en Node.js, Java o cualquier otro lenguaje estándar).
+Genere una imagen de Docker a partir del código compilado.
+Suba la imagen al Azure Container Registry (ACR).
+Cree un clúster en Azure Kubernetes Service (AKS) si no existe, o conéctese a un clúster existente.
+Despliegue el contenedor desde la imagen almacenada en ACR al clúster de AKS.
+Además, incluye pasos detallados sobre:
+
+Cómo configurar Jenkins con las credenciales necesarias para acceder a ACR y AKS.
+Cómo usar el plugin de Azure para Jenkins o cualquier otra configuración necesaria.
+Qué comandos ejecutar para instalar y configurar AKS desde Jenkins.
+Cómo escribir un manifiesto de despliegue de Kubernetes para usarlo en el AKS.
+El archivo Jenkinsfile debe incluir comentarios detallados que expliquen cada paso.
+Los datos que tengo actualmente son:
+GitHub
+repositorio: https://github.com/joselizagaravito/app-java-basico.git
+Usuario: joselizagaravito
+Access Token: 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
+
+Azure ECR
+Grupo de recursos: GrupoDevOps
+Ubicación: East US
+Id. de suscripción: c9f87aca-4d37-4036-9ca6-42356791a21c
+Servidor de inicio de sesión: selacrjenkins.azurecr.io
+
+Cuenta en Azure: joselizagaravito
+Repositorio en Azure: https://hub.docker.com/repository/docker/joselizagaravito/app-java-basico
+Token: dckr_pat_9i9pZ309noxKGsUT-0EhWXiBzSY
+
+Azure
+Tenant ID: 799bf33c-dbbf-40f4-842a-ebce893cc3af
+
+PS C:\Mis Documentos\DevOps\Curso-DevOps\sesion07a> docker run -d --name jenkins -u root -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home -p 8070:8080 jenkins-azure
+bf0cc66aae0d044a56c7205b1dc8ec6f84eaf99aad34823a4c9b257aee73a60d
+PS C:\Mis Documentos\DevOps\Curso-DevOps\sesion07a> docker exec -it jenkins bash
+root@bf0cc66aae0d:/# docker --version
+Docker version 27.3.1, build ce12230
+root@bf0cc66aae0d:/# docker ps
+CONTAINER ID   IMAGE           COMMAND                  CREATED          STATUS          PORTS
+     NAMES
+bf0cc66aae0d   jenkins-azure   "/usr/bin/tini -- /u…"   18 seconds ago   Up 18 seconds   50000/tcp, 0.0.0.0:8070->8080/tcp   jenkins

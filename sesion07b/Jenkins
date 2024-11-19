@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+    environment {
+        // Variables de entorno para ACR y AKS
+        ACR_NAME = 'selacrjenkins.azurecr.io'
+        ACR_REPO = 'app-java-basico'
+        RESOURCE_GROUP = 'GrupoDevOps'
+        AKS_CLUSTER = 'aks-cluster'
+        DOCKER_IMAGE = "${ACR_NAME}/${ACR_REPO}:latest"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Clonando el repositorio desde GitHub...'
+                git credentialsId: 'github-credentials', url: 'https://github.com/joselizagaravito/app-java-basico.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Compilando el código fuente...'
+                sh './mvnw clean package' // Cambia el comando si usas otro lenguaje/tecnología
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                echo 'Creando imagen Docker...'
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+        stage('Push to ACR') {
+            steps {
+                echo 'Subiendo la imagen al Azure Container Registry...'
+                sh """
+                az acr login --name ${ACR_NAME.split('.')[0]}
+                docker push ${DOCKER_IMAGE}
+                """
+            }
+        }
+        stage('Create or Connect to AKS') {
+            steps {
+                echo 'Creando o conectándose al clúster AKS...'
+                script {
+                    def clusterExists = sh(
+                        script: "az aks list -g ${RESOURCE_GROUP} --query '[?name==\\'${AKS_CLUSTER}\\'] | length(@)'",
+                        returnStdout: true
+                    ).trim()
+                    if (clusterExists == '0') {
+                        echo 'Clúster no encontrado. Creando uno nuevo...'
+                        sh """
+                        az aks create --resource-group ${RESOURCE_GROUP} --name ${AKS_CLUSTER} --node-count 1 --enable-addons monitoring --generate-ssh-keys
+                        """
+                    } else {
+                        echo 'Clúster existente encontrado. Conectando...'
+                    }
+                    sh "az aks get-credentials --resource-group ${RESOURCE_GROUP} --name ${AKS_CLUSTER}"
+                }
+            }
+        }
+        stage('Deploy to AKS') {
+            steps {
+                echo 'Desplegando la aplicación en AKS...'
+                writeFile file: 'deployment.yml', text: """
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: app-java-basico
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      app: app-java-basico
+                  template:
+                    metadata:
+                      labels:
+                        app: app-java-basico
+                    spec:
+                      containers:
+                      - name: app-java-basico
+                        image: ${DOCKER_IMAGE}
+                        ports:
+                        - containerPort: 8080
+                ---
+                apiVersion: v1
+                kind: Service
