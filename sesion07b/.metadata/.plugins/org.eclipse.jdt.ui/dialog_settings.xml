@@ -13,8 +13,11 @@
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>
+<<<<<<< HEAD
 	<section name="RefactoringWizard.preview">
 		<item key="width" value="600"/>
 		<item key="height" value="400"/>
 	</section>
+=======
+>>>>>>> 14a22e0 (Sesion 09a)
 </section>

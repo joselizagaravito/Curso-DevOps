@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+    stages {
+        stage('Preparar Ambiente') {
+            steps {
+                // Navegar al directorio del repositorio local
+                dir('C:\\Program Files\\terraform\\example') {
+                    script {
+                        // (Opcional) Si deseas asegurar la actualización del repositorio
+                        sh 'git pull || echo "No updates"'
+                    }
+                }
+            }
+        }
+        stage('Inicializar Terraform') {
+            steps {
+                dir('C:\\Program Files\\terraform\\example') {
+                    script {
+                        // Ejecutar terraform init
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+        stage('Planificar Infraestructura') {
+            steps {
+                dir('C:\\Program Files\\terraform\\example') {
+                    script {
+                        // Ejecutar terraform plan y guardar el plan
+                        sh 'terraform plan -out=tfplan'
+                    }
+                }
+            }
+        }
+        stage('Aplicar Infraestructura') {
+            steps {
+                dir('C:\\Program Files\\terraform\\example') {
+                    script {
+                        // Aplicar el plan automáticamente
+                        sh 'terraform apply -auto-approve tfplan'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline terminado.'
+        }
+    }
+}

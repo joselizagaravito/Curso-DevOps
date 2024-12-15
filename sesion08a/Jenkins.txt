@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE_NAME = "joselizagaravito/app-java-texto"
+        DOCKER_REGISTRY = "index.docker.io"
+        KUBECONFIG = credentials('kubeconfig-aws') // Configuración de acceso a Kubernetes
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'master', url: 'https://github.com/joselizagaravito/app-java-texto.git'
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def image = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}/v1/", 'docker-credentials-id') {
+                        def image = docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+                        image.push()
+                        image.push("latest") // También subimos la etiqueta 'latest'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh """
+                    kubectl set image deployment/app-java-texto app-java-texto=${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} --kubeconfig=$KUBECONFIG
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finalizado'
+        }
+    }
+}
