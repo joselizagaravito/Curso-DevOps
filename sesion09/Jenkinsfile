@@ -1,0 +1,82 @@
+pipeline{
+    agent any
+    environment{
+        AZURE_CLIENT_ID = credentials("client_id")
+        AZURE_CLIENT_SECRET = credentials("client_secret")
+        AZURE_SUBSCRIPTION_ID = credentials("subscription_id")
+        AZURE_TENANT_ID = credentials("tenant_id")
+    }
+    stages{
+        stage('Login to Azure'){
+            steps{
+                sh '''
+                az login --service-principal \
+                -u $AZURE_CLIENT_ID \
+                -p $AZURE_CLIENT_SECRET \
+                --tenant $AZURE_TENANT_ID
+
+                az account set --subscription $AZURE_SUBSCRIPTION_ID
+                '''
+            }
+        }
+        stage('Checkout code'){
+            steps{
+                Checkout scm
+            }
+        }
+        stage('Generate Terraform.tfvars'){
+            steps{
+                script{
+                    writefile file: 'infra/terraform.tfvars', text:"""
+                    subscription_id = "${AZURE_SUBSCRIPTION_ID}"
+                    client_id = "${AZURE_CLIENT_ID}"
+                    client_secret = "${AZURE_CLIENT_SECRET}"
+                    tenant_id = "${AZURE_TENANT_ID}"
+                    """
+                }
+            }
+        }
+        stage('Generate init'){
+            steps{
+                script {
+                    dir('infra'){
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+        stage('Terraform plan'){
+            steps{
+                script {
+                    dir('infra'){
+                        sh 'terraform plan'
+                    }
+                }
+            }
+        }
+        stage('Terraform apply'){
+            steps{
+                script {
+                    dir('infra'){
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+        stage('Save kube_config'){
+            steps{
+                script{
+                    dir('infra'){
+                        sh 'terraform output -raw kube_config > kube_config'
+                    }
+                }
+            }
+        }
+        
+    }
+    post{
+        always{
+            cleanWs()
+        }
+    }
+}
